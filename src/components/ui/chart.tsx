@@ -1,14 +1,15 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import * as RechartsPrimitive from "recharts"
+import * as React from 'react';
+import * as RechartsPrimitive from 'recharts';
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils';
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
 
 export type ChartConfig = {
+  // eslint-disable-next-line no-unused-vars
   [k in string]: {
     label?: React.ReactNode
     icon?: React.ComponentType
@@ -300,7 +301,7 @@ const ChartLegendContent = React.forwardRef<
                 <itemConfig.icon />
               ) : (
                 <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
+                  className="size-2 shrink-0 rounded-[2px]"
                   style={{
                     backgroundColor: item.color,
                   }}
