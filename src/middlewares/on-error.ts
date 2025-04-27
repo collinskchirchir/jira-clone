@@ -1,6 +1,7 @@
 import type { ErrorHandler } from 'hono';
-import type { StatusCode } from 'hono/utils/http-status';
+import env from '@/env';
 
+import type { StatusCode } from 'hono/utils/http-status';
 import { INTERNAL_SERVER_ERROR, OK } from '@/lib/http-status-codes';
 
 const onError: ErrorHandler = (err, c) => {
@@ -11,13 +12,13 @@ const onError: ErrorHandler = (err, c) => {
     ? (currentStatus as StatusCode)
     : INTERNAL_SERVER_ERROR;
   
-  // TODO: use env variables appropriately
-  const env = c.env?.NODE_ENV || process.env?.NODE_ENV;
+
+  const environment = env.NODE_ENV
   return c.json(
     {
       message: err.message,
 
-      stack: env === "production"
+      stack: environment === "production"
         ? undefined
         : err.stack,
     },
