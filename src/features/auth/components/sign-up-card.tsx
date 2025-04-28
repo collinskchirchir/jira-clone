@@ -1,19 +1,21 @@
 'use client';
-import {z} from 'zod';
+import { z } from 'zod';
 import Link from 'next/link';
-import {FcGoogle} from 'react-icons/fc';
-import {FaGithub} from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
+import { FaGithub } from 'react-icons/fa';
 
-import {useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
-import {DottedSeparator} from '@/components/dotted-separator';
-import {Input} from '@/components/ui/input';
-import {Form, FormControl, FormField, FormItem, FormMessage} from '@/components/ui/form';
-import {Button} from '@/components/ui/button';
-import {registerSchema} from '@/features/auth/auth-schemas';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DottedSeparator } from '@/components/dotted-separator';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { registerSchema } from '@/features/auth/auth-schemas';
+import { useRegister } from '@/features/auth/api/use-register';
 
 export const SignUpCard = () => {
+  const { mutate } = useRegister()
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -23,7 +25,7 @@ export const SignUpCard = () => {
     }
   });
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
-    console.log({values})
+    mutate({json: values})
   }
     return (
         <Card className="size-full border-none shadow-none md:w-[487px]">
