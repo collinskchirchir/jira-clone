@@ -12,8 +12,11 @@ import { Button } from '@/components/ui/button';
 import { loginSchema } from '@/features/auth/auth-schemas';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import Link from 'next/link';
+import { useLogin } from '@/features/auth/api/use-login';
 
 export const SignInCard = () => {
+  const { mutate } = useLogin();
+
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -21,9 +24,12 @@ export const SignInCard = () => {
       password: '',
     },
   });
+
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    console.log({ values });
+    // console.log({ values });
+    mutate({ json: values });
   };
+
   return (
     <Card className="size-full border-none shadow-none md:w-[487px]">
       <CardHeader className="flex items-center justify-center p-7 text-center">

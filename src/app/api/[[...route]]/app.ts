@@ -8,6 +8,4 @@ app.get("/error", (c) => {
   throw new Error("Oh No, Error!!")
 })
 
-
-
 export default app
