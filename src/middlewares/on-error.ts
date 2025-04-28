@@ -1,5 +1,5 @@
 import type { ErrorHandler } from 'hono';
-import env from '@/env';
+import { env } from '@/env';
 
 import type { StatusCode } from 'hono/utils/http-status';
 import { INTERNAL_SERVER_ERROR, OK } from '@/lib/http-status-codes';
