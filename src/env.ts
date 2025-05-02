@@ -2,6 +2,9 @@ import { createEnv } from '@t3-oss/env-core';
 import { z } from 'zod';
 
 export const env = createEnv({
+  /*
+  * ServerSide Environment variables, not available on the client.
+  */
   server: {
     NODE_ENV: z.string().default('development'),
     LOG_LEVEL: z.enum([
@@ -17,12 +20,12 @@ export const env = createEnv({
     // Add other server-only env vars here
   },
 
-  /**
+  /*
+   * Environment variables available on the client (and server).
    * The prefix that client-side variables must have.
    * Next.js uses NEXT_PUBLIC_ as the standard prefix.
    */
   clientPrefix: 'NEXT_PUBLIC_',
-
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
     NEXT_PUBLIC_APPWRITE_ENDPOINT: z.string().min(1),
@@ -34,17 +37,20 @@ export const env = createEnv({
   /**
    * Explicitly map environment variables from process.env to our schema
    */
-  runtimeEnv: {
-    NODE_ENV: process.env.NODE_ENV,
-    LOG_LEVEL: process.env.LOG_LEVEL,
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-    NEXT_APPWRITE_KEY: process.env.NEXT_APPWRITE_KEY,
-    NEXT_PUBLIC_APPWRITE_ENDPOINT: process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT,
-    NEXT_PUBLIC_APPWRITE_PROJECT: process.env.NEXT_PUBLIC_APPWRITE_PROJECT,
-    NEXT_PUBLIC_APPWRITE_DATABASE_ID: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+  runtimeEnv:
+    {
+      NODE_ENV: process.env.NODE_ENV,
+      LOG_LEVEL: process.env.LOG_LEVEL,
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+      NEXT_APPWRITE_KEY: process.env.NEXT_APPWRITE_KEY,
+      NEXT_PUBLIC_APPWRITE_ENDPOINT: process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT,
+      NEXT_PUBLIC_APPWRITE_PROJECT: process.env.NEXT_PUBLIC_APPWRITE_PROJECT,
+      NEXT_PUBLIC_APPWRITE_DATABASE_ID: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
 
-    // Add other env vars here
-  },
+      // Add other env vars here
+    },
+  // runtimeEnv: process.env,
+
 
   /**
    * Handle empty strings for required variables
