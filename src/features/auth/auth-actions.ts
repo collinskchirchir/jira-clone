@@ -1,5 +1,3 @@
-'use server';
-
 import { cookies } from 'next/headers';
 import { env } from '@/env';
 import { Account, Client } from 'node-appwrite';
