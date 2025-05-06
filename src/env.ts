@@ -31,6 +31,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APPWRITE_ENDPOINT: z.string().min(1),
     NEXT_PUBLIC_APPWRITE_PROJECT: z.string().min(1),
     NEXT_PUBLIC_APPWRITE_DATABASE_ID: z.string().min(1),
+    NEXT_PUBLIC_APPWRITE_WORKSPACES_ID: z.string().min(1),
     // Add other client-safe env vars here
   },
 
@@ -46,6 +47,7 @@ export const env = createEnv({
       NEXT_PUBLIC_APPWRITE_ENDPOINT: process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT,
       NEXT_PUBLIC_APPWRITE_PROJECT: process.env.NEXT_PUBLIC_APPWRITE_PROJECT,
       NEXT_PUBLIC_APPWRITE_DATABASE_ID: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+      NEXT_PUBLIC_APPWRITE_WORKSPACES_ID: process.env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
 
       // Add other env vars here
     },
