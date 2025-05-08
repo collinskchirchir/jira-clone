@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { QueryProvider } from '@/components/query-provider';
 
 import './globals.css';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -33,6 +34,7 @@ export default function RootLayout({
       className={cn(geistSans.variable, geistMono.variable, 'antialiased min-h-screen')}
     >
     <QueryProvider>
+      <Toaster />
       {children}
     </QueryProvider>
     </body>
