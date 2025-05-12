@@ -17,6 +17,10 @@ export const env = createEnv({
       'silent',
     ]),
     NEXT_APPWRITE_KEY: z.string().min(1),
+
+    CLOUDFLARE_R2_ENDPOINT: z.string().min(1),
+    CLOUDFLARE_R2_ACCESS_KEY_ID: z.string().min(1),
+    CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string().min(1),
     // Add other server-only env vars here
   },
 
@@ -50,6 +54,10 @@ export const env = createEnv({
       NEXT_PUBLIC_APPWRITE_DATABASE_ID: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
       NEXT_PUBLIC_APPWRITE_WORKSPACES_ID: process.env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
       NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID: process.env.NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID,
+      CLOUDFLARE_R2_ENDPOINT: process.env.CLOUDFLARE_R2_ENDPOINT,
+      CLOUDFLARE_R2_ACCESS_KEY_ID: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+      CLOUDFLARE_R2_SECRET_ACCESS_KEY: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+
 
       // Add other env vars here
     },
