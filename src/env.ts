@@ -21,6 +21,7 @@ export const env = createEnv({
     CLOUDFLARE_R2_ENDPOINT: z.string().min(1),
     CLOUDFLARE_R2_ACCESS_KEY_ID: z.string().min(1),
     CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string().min(1),
+    CLOUDFLARE_R2_BUCKET_NAME: z.string().min(1),
     // Add other server-only env vars here
   },
 
@@ -57,6 +58,7 @@ export const env = createEnv({
       CLOUDFLARE_R2_ENDPOINT: process.env.CLOUDFLARE_R2_ENDPOINT,
       CLOUDFLARE_R2_ACCESS_KEY_ID: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
       CLOUDFLARE_R2_SECRET_ACCESS_KEY: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+      CLOUDFLARE_R2_BUCKET_NAME: process.env.CLOUDFLARE_R2_BUCKET_NAME,
 
 
       // Add other env vars here

@@ -63,8 +63,8 @@ importers:
         specifier: ^5.74.4
         version: 5.74.4(react@18.3.1)
       better-upload:
-        specifier: ^0.2.7
-        version: 0.2.7(@aws-sdk/client-s3@3.806.0)(react@18.3.1)
+        specifier: ^0.3.0
+        version: 0.3.0(@aws-sdk/client-s3@3.806.0)(react@18.3.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1526,8 +1526,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  better-upload@0.2.7:
-    resolution: {integrity: sha512-Fp3HyxTgbQ/1gV1CkQSnv1YFFHHzo5fWq1Jh7lekK0LAZ4iIYb8X6dAv7Q7rhhydMnORnEqB74PYPb93n7jl8Q==}
+  better-upload@0.3.0:
+    resolution: {integrity: sha512-zwAni/ZGT1VF5gluX1cPaRA/bWtJmsVEtj78wubLQhEL8sG2skJoLNgwR6BUCL+1n+uMDjkoSgHhrFe1vrltmw==}
     peerDependencies:
       '@aws-sdk/client-s3': '*'
       react: '*'
@@ -4948,7 +4948,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  better-upload@0.2.7(@aws-sdk/client-s3@3.806.0)(react@18.3.1):
+  better-upload@0.3.0(@aws-sdk/client-s3@3.806.0)(react@18.3.1):
     dependencies:
       '@aws-sdk/client-s3': 3.806.0
       '@aws-sdk/s3-request-presigner': 3.806.0

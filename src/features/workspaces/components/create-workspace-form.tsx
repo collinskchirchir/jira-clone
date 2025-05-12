@@ -3,9 +3,8 @@
 import { z } from 'zod';
 import React, { useRef } from 'react';
 import Image from 'next/image';
-import { ImageIcon } from 'lucide-react';
+import { ImageIcon, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { cn } from '@/lib/utils';
@@ -24,8 +23,7 @@ interface CreateWorkspaceFormProps {
 };
 
 export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
-  const router = useRouter();
-  const { mutate, isPending } = useCreateWorkspace();
+  const { mutate, isPending, isUploading, isCreating } = useCreateWorkspace();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -41,11 +39,10 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
       ...values,
       image: values.image instanceof File ? values.image : '',
     };
-
+    // Pass form values to the mutation
     mutate({ form: finalValues }, {
-      onSuccess: ({ data }) => {
+      onSuccess: () => {
         form.reset();
-        router.push(`/workspaces/${data.$id}`);
       },
     });
   };
@@ -53,6 +50,11 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 1024 * 1024) {
+        // 1MB limit
+        form.setError('image', { message: 'File size must be less than 1MB' });
+        return;
+      }
       form.setValue('image', file);
     }
   };
@@ -83,6 +85,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                       <Input
                         {...field}
                         placeholder="Enter workspace name"
+                        disabled={isPending}
                       />
                     </FormControl>
                     <FormMessage />
@@ -107,6 +110,11 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                                 : field.value
                             }
                           />
+                          {isUploading && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                              <Loader2 className="size-8 animate-spin text-white" />
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <Avatar className="size-[72px]">
@@ -179,7 +187,19 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
                 type="submit"
                 size="lg"
               >
-                Create Workspace
+                {isUploading ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : isCreating ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create Workspace'
+                )}
               </Button>
             </div>
           </form>

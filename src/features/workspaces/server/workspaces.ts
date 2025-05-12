@@ -4,6 +4,7 @@ import { createWorkspaceSchema } from '@/features/workspaces/workspaces-schema';
 import { sessionMiddleware } from '@/lib/session-middleware';
 import { env } from '@/env';
 import { ID } from 'node-appwrite';
+import { getFileAsDataUrl } from '@/lib/better-upload-handler';
 
 const app = new Hono()
   .post(
@@ -12,25 +13,27 @@ const app = new Hono()
     sessionMiddleware,
     async (c) => {
       const databases = c.get('databases');
-      const storage = c.get('storage');
       const user = c.get('user');
 
       const { name, image } = c.req.valid('form');
 
       let uploadedImageUrl: string | undefined;
-      if (image instanceof File) {
-        const file = await storage.createFile(
-          env.NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID,
-          ID.unique(),
-          image,
-        );
-        // preview url
-        const arrayBuffer = await storage.getFilePreview(
-          env.NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID,
-          file.$id,
-        );
 
-        uploadedImageUrl = `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`;
+      // If image is a string and looks like a fileId from Better Upload
+      if (typeof image === 'string' && image.trim() !== '') {
+        try {
+          // Check if this is a fileId we should retrieve
+          if (!image.startsWith('data:') && !image.startsWith('http')) {
+            // This is likely a fileId, get it as a data URL
+            uploadedImageUrl = await getFileAsDataUrl(image);
+          } else {
+            // This is already a URL or data URL, use directly
+            uploadedImageUrl = image;
+          }
+        } catch (error) {
+          console.error('Error retrieving image:', error);
+          // Continue without image if retrieval fails
+        }
       }
 
       const workspace = await databases.createDocument(

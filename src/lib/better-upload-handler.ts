@@ -13,10 +13,10 @@ export const s3Client = new S3Client({
   },
 });
 
-// Router configuration
+// Upload Router Configuration
 export const uploadRouter: Router = {
   client: s3Client,
-  bucketName: env.NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID, // Reusing the existing bucket ID
+  bucketName: env.CLOUDFLARE_R2_BUCKET_NAME,
   routes: {
     workspaceImage: route({
       fileTypes: ['image/*'],
@@ -24,7 +24,7 @@ export const uploadRouter: Router = {
       onBeforeUpload: async ({ file }) => {
         // You can add authentication checks here
         return {
-          // Generate a unique key
+          // Generate a unique key for the file
           objectKey: `workspace-images/${Date.now()}-${file.name}`,
         };
       },
@@ -39,12 +39,12 @@ export const uploadRouter: Router = {
   },
 };
 
-// Helper function to get file as data URL
+// Helper function to get file as data URL - good for smaller files
 export async function getFileAsDataUrl(fileId: string): Promise<string> {
   try {
     // Get the file from S3/R2
     const command = new GetObjectCommand({
-      Bucket: env.NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID,
+      Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
       Key: fileId,
     });
 
@@ -68,12 +68,22 @@ export async function getFileAsDataUrl(fileId: string): Promise<string> {
   }
 }
 
-// Get a temporary signed URL for a file (alternative to data URL for large files)
+// Get a temporary signed URL for a file - better for larger files
 export async function getFileSignedUrl(fileId: string, expiresIn = 3600): Promise<string> {
-  const command = new GetObjectCommand({
-    Bucket: env.NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID,
-    Key: fileId,
-  });
+  try {
+    const command = new GetObjectCommand({
+      Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
+      Key: fileId,
+    });
 
-  return getSignedUrl(s3Client, command, { expiresIn });
+    return getSignedUrl(s3Client, command, { expiresIn });
+  } catch (error) {
+    console.error('Error getting signed URL:', error);
+    throw error;
+  }
 }
+
+// Get Public URL helper - if your bucket has public access configured
+// export function getPublicFileUrl(fileId: string): string {
+//   return `${env.CLOUDFLARE_R2_PUBLIC_URL}/${fileId}`;
+// }
