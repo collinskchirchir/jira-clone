@@ -1,6 +1,5 @@
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { route, type Router } from 'better-upload/server';
 import { env } from '@/env';
 
 // Configure your S3 client for Cloudflare R2
@@ -12,32 +11,6 @@ export const s3Client = new S3Client({
     secretAccessKey: env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
   },
 });
-
-// Upload Router Configuration
-export const uploadRouter: Router = {
-  client: s3Client,
-  bucketName: env.CLOUDFLARE_R2_BUCKET_NAME,
-  routes: {
-    workspaceImage: route({
-      fileTypes: ['image/*'],
-      maxFileSize: 1024 * 1024, // 1MB
-      onBeforeUpload: async ({ file }) => {
-        // You can add authentication checks here
-        return {
-          // Generate a unique key for the file
-          objectKey: `workspace-images/${Date.now()}-${file.name}`,
-        };
-      },
-      onAfterSignedUrl: async ({ file }) => {
-        return {
-          metadata: {
-            fileId: file.objectKey,
-          },
-        };
-      },
-    }),
-  },
-};
 
 // Helper function to get file as data URL - good for smaller files
 export async function getFileAsDataUrl(fileId: string): Promise<string> {
@@ -68,22 +41,35 @@ export async function getFileAsDataUrl(fileId: string): Promise<string> {
   }
 }
 
-// Get a temporary signed URL for a file - better for larger files
-export async function getFileSignedUrl(fileId: string, expiresIn = 3600): Promise<string> {
-  try {
-    const command = new GetObjectCommand({
-      Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
-      Key: fileId,
-    });
+// Generate a pre-signed URL for uploading a file
+export async function getUploadSignedUrl(
+  fileKey: string,
+  contentType: string,
+  expiresIn = 3600
+) {
+  const command = new PutObjectCommand({
+    Bucket: env.CLOUDFLARE_R2_BUCKET_NAME,
+    Key: fileKey,
+    ContentType: contentType
+  });
 
-    return getSignedUrl(s3Client, command, { expiresIn });
-  } catch (error) {
-    console.error('Error getting signed URL:', error);
-    throw error;
+  const signedUrl = await getSignedUrl(s3Client, command, { expiresIn });
+
+  if (!signedUrl) {
+    throw new Error('Failed to generate upload signed URL');
   }
+
+  return signedUrl;
 }
 
-// Get Public URL helper - if your bucket has public access configured
-// export function getPublicFileUrl(fileId: string): string {
-//   return `${env.CLOUDFLARE_R2_PUBLIC_URL}/${fileId}`;
-// }
+// Get Public URL helper - for files stored in Cloudflare R2
+export function getPublicFileUrl(fileId: string): string {
+  // Use the Cloudflare R2 endpoint to construct a URL for the file
+  // Remove any trailing slashes from the endpoint
+  const cleanBaseUrl = env.CLOUDFLARE_R2_ENDPOINT.endsWith('/') 
+    ? env.CLOUDFLARE_R2_ENDPOINT.slice(0, -1) 
+    : env.CLOUDFLARE_R2_ENDPOINT;
+  
+  // Construct the full URL with bucket name
+  return `${cleanBaseUrl}/${env.CLOUDFLARE_R2_BUCKET_NAME}/${fileId}`;
+}

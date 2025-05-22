@@ -18,7 +18,7 @@ export const useCreateWorkspace = () => {
       return uploadFile({
         file,
         route: 'workspaceImage',
-        api: '/api/upload',
+        api: '/api/upload/workspace-image',
         onFileStateChange: ({ file }) => {
           // you handle the progress of the file
           console.log(file);
