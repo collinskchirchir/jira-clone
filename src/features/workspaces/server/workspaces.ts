@@ -4,7 +4,7 @@ import { createWorkspaceSchema } from '@/features/workspaces/workspaces-schema';
 import { sessionMiddleware } from '@/lib/session-middleware';
 import { env } from '@/env';
 import { ID } from 'node-appwrite';
-import { getFileAsDataUrl } from '@/lib/better-upload-handler';
+import { getPublicFileUrl } from '@/lib/better-upload-handler';
 
 const app = new Hono()
   .post(
@@ -19,20 +19,22 @@ const app = new Hono()
 
       let uploadedImageUrl: string | undefined;
 
-      // If image is a string and looks like a fileId from Better Upload
+      // Handle the image URL
       if (typeof image === 'string' && image.trim() !== '') {
         try {
-          // Check if this is a fileId we should retrieve
+          // Check if this is a fileId from Better Upload (not already a complete URL)
           if (!image.startsWith('data:') && !image.startsWith('http')) {
-            // This is likely a fileId, get it as a data URL
-            uploadedImageUrl = await getFileAsDataUrl(image);
+            // This is a fileId from Better Upload, construct a public URL using our helper
+            // This will create a URL using the R2 endpoint and bucket name
+            uploadedImageUrl = getPublicFileUrl(image);
+            console.log('Generated public URL for image:', uploadedImageUrl);
           } else {
-            // This is already a URL or data URL, use directly
+            // This is already a URL or data URL, use it directly
             uploadedImageUrl = image;
           }
         } catch (error) {
-          console.error('Error retrieving image:', error);
-          // Continue without image if retrieval fails
+          console.error('Error processing image URL:', error);
+          // Continue without image if there's an error
         }
       }
 
