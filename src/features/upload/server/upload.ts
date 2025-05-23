@@ -17,11 +17,16 @@ app.post('/workspace-image', async (c) => {
       workspaceImage: route({
         fileTypes: ['image/*'],
         maxFileSize: 1024 * 1024, // 1MB
-        onBeforeUpload: async () => {
+        onBeforeUpload: async ({ file }) => {
           // You can add authentication checks here
+          
+          // Extract the file extension from the original filename
+          const originalName = file.name;
+          const extension = originalName.split('.').pop() || '';
+          
           return {
-            // Generate a unique key for the file
-            objectKey: `workspace-images/${Date.now()}-${fileName}`,
+            // Generate a unique key for the file with the original extension
+            objectKey: `workspace-images/${Date.now()}-${fileName}${extension ? '.' + extension : ''}`,
           };
         },
         onAfterSignedUrl: async ({ file }) => {
