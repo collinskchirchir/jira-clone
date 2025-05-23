@@ -7,6 +7,17 @@ import { ID } from 'node-appwrite';
 import { getPublicFileUrl } from '@/lib/better-upload-handler';
 
 const app = new Hono()
+  .get(
+    '/',
+    sessionMiddleware,
+    async (c) => {
+      const databases = c.get('databases');
+      const workspaces = await databases.listDocuments(
+        env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
+      );
+      return c.json({ data: workspaces });
+    })
   .post(
     '/',
     zValidator('form', createWorkspaceSchema),
