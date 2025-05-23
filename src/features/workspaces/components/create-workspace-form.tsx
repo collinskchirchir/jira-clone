@@ -31,6 +31,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
     resolver: zodResolver(createWorkspaceSchema),
     defaultValues: {
       name: '',
+      image: ''
     },
   });
 
