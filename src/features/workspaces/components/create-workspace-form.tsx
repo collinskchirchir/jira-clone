@@ -20,7 +20,7 @@ import { useCreateWorkspace } from '../api/use-create-workspace';
 
 interface CreateWorkspaceFormProps {
   onCancel?: () => void;
-};
+}
 
 export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
   const { mutate, isPending, isUploading, isCreating } = useCreateWorkspace();
@@ -31,7 +31,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
     resolver: zodResolver(createWorkspaceSchema),
     defaultValues: {
       name: '',
-      image: ''
+      image: '',
     },
   });
 
@@ -44,6 +44,7 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
     mutate({ form: finalValues }, {
       onSuccess: () => {
         form.reset();
+        // TODO: redirect to new workspace
       },
     });
   };

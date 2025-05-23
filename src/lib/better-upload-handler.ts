@@ -66,10 +66,10 @@ export async function getUploadSignedUrl(
 export function getPublicFileUrl(fileId: string): string {
   // Use the Cloudflare R2 endpoint to construct a URL for the file
   // Remove any trailing slashes from the endpoint
-  const cleanBaseUrl = env.CLOUDFLARE_R2_ENDPOINT.endsWith('/') 
-    ? env.CLOUDFLARE_R2_ENDPOINT.slice(0, -1) 
-    : env.CLOUDFLARE_R2_ENDPOINT;
+  const cleanBaseUrl = env.CLOUDFLARE_R2_PUBLIC_URL.endsWith('/') 
+    ? env.CLOUDFLARE_R2_PUBLIC_URL.slice(0, -1) 
+    : env.CLOUDFLARE_R2_PUBLIC_URL;
   
   // Construct the full URL with bucket name
-  return `${cleanBaseUrl}/${env.CLOUDFLARE_R2_BUCKET_NAME}/${fileId}`;
+  return `${cleanBaseUrl}/${fileId}`;
 }
