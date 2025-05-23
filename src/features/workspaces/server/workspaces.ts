@@ -3,18 +3,38 @@ import { zValidator } from '@hono/zod-validator';
 import { createWorkspaceSchema } from '@/features/workspaces/workspaces-schema';
 import { sessionMiddleware } from '@/lib/session-middleware';
 import { env } from '@/env';
-import { ID } from 'node-appwrite';
+import { ID, Query } from 'node-appwrite';
 import { getPublicFileUrl } from '@/lib/better-upload-handler';
+import { MemberRole } from '@/features/members/types';
+import { generateInviteCode } from '@/lib/utils';
 
 const app = new Hono()
   .get(
     '/',
     sessionMiddleware,
     async (c) => {
+      const user = c.get('user');
       const databases = c.get('databases');
+
+      // extract all members that logged in user is a part of
+      const members = await databases.listDocuments(
+        env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        env.NEXT_PUBLIC_APPWRITE_MEMBERS_ID,
+        [Query.equal('userId', user.$id)],
+      );
+      if (members.total === 0) {
+        return c.json({ data: { documents: [], total: 0 } });
+      }
+
+      const workspaceIds = members.documents.map((member) => member.workspaceId);
+
       const workspaces = await databases.listDocuments(
         env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
         env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
+        [
+          Query.orderDesc('$createdAt'),
+          Query.contains('$id', workspaceIds),
+        ],
       );
       return c.json({ data: workspaces });
     })
@@ -57,6 +77,18 @@ const app = new Hono()
           name,
           userId: user.$id,
           imageUrl: uploadedImageUrl,
+          inviteCode: generateInviteCode(6),
+        },
+      );
+
+      await databases.createDocument(
+        env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        env.NEXT_PUBLIC_APPWRITE_MEMBERS_ID,
+        ID.unique(),
+        {
+          userId: user.$id,
+          workspaceId: workspace.$id,
+          role: MemberRole.ADMIN,
         },
       );
       return c.json({ data: workspace });
