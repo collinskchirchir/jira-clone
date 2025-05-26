@@ -1,12 +1,14 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { createWorkspaceSchema } from '@/features/workspaces/workspaces-schema';
+import { createWorkspaceSchema, updateWorkspaceSchema } from '@/features/workspaces/workspaces-schema';
 import { sessionMiddleware } from '@/lib/session-middleware';
 import { env } from '@/env';
 import { ID, Query } from 'node-appwrite';
 import { getPublicFileUrl } from '@/lib/better-upload-handler';
 import { MemberRole } from '@/features/members/types';
 import { generateInviteCode } from '@/lib/utils';
+import { getMember } from '@/features/members/member-utils';
+import { Workspace } from '@/features/workspaces/workspace-types';
 
 const app = new Hono()
   .get(
@@ -38,6 +40,34 @@ const app = new Hono()
       );
       return c.json({ data: workspaces });
     })
+  .get(
+    '/:workspaceId',
+    sessionMiddleware,
+    async (c) => {
+      const user = c.get('user');
+      const databases = c.get('databases');
+      const { workspaceId } = c.req.param();
+
+      const member = await getMember({
+        databases,
+        workspaceId,
+        userId: user.$id,
+      });
+
+      if (!member) {
+        return c.json({ error: 'Unauthorized' }, 401);
+      }
+
+      const workspace = await databases.getDocument<Workspace>(
+        env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
+        workspaceId,
+      );
+      console.log('Workpace Details: ', workspace);
+
+      return c.json({ data: workspace });
+    },
+  )
   .post(
     '/',
     zValidator('form', createWorkspaceSchema),
@@ -93,6 +123,58 @@ const app = new Hono()
       );
       return c.json({ data: workspace });
     },
-  );
+  )
+  .patch(
+    '/:workspaceId',
+    sessionMiddleware,
+    zValidator('form', updateWorkspaceSchema),
+    async (c) => {
+      const databases = c.get('databases');
+      const user = c.get('user');
+
+      const { workspaceId } = c.req.param();
+      const { name, image } = c.req.valid('form');
+      // check is user is member of workspace
+      const member = await getMember({
+        databases,
+        workspaceId,
+        userId: user.$id,
+      });
+      if (!member || member.role !== MemberRole.ADMIN) {
+        return c.json({ error: 'Unauthorized' }, 401);
+      }
+      let uploadedImageUrl: string | undefined;
+
+      // Handle the image URL
+      if (typeof image === 'string' && image.trim() !== '') {
+        try {
+          // Check if this is a fileId from Better Upload (not already a complete URL)
+          if (!image.startsWith('data:') && !image.startsWith('http')) {
+            // This is a fileId from Better Upload, construct a public URL using our helper
+            // This will create a URL using the R2 endpoint and bucket name
+            uploadedImageUrl = getPublicFileUrl(image);
+            console.log('Generated public URL for image:', uploadedImageUrl);
+          } else {
+            // This is already a URL or data URL, use it directly
+            uploadedImageUrl = image;
+          }
+        } catch (error) {
+          console.error('Error processing image URL:', error);
+          // Continue without image if there's an error
+        }
+      }
+
+      const workspace = await databases.updateDocument(
+        env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
+        workspaceId,
+        {
+          name,
+          imageUrl: uploadedImageUrl,
+        },
+      );
+      return c.json({ data: workspace });
+    })
+;
 
 export default app;
