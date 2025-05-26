@@ -63,7 +63,6 @@ const app = new Hono()
         env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
         workspaceId,
       );
-      console.log('Workpace Details: ', workspace);
 
       return c.json({ data: workspace });
     },
@@ -97,6 +96,36 @@ const app = new Hono()
 
       return c.json({ data: { $id: workspaceId } });
     },
+  ).post(
+    '/:workspaceId/reset-invite-code',
+    sessionMiddleware,
+    async (c) => {
+      const databases = c.get('databases');
+      const user = c.get('user');
+
+      const { workspaceId } = c.req.param();
+
+      const member = await getMember({
+        databases,
+        workspaceId,
+        userId: user.$id,
+      });
+
+      if (!member || member.role !== MemberRole.ADMIN) {
+        return c.json({ error: 'Unauthorized' }, 401);
+      }
+
+      const workspace = await databases.updateDocument(
+        env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
+        workspaceId,
+        {
+          inviteCode: generateInviteCode(6),
+        },
+      );
+
+      return c.json({ data: workspace });
+    },
   )
   .post(
     '/',
@@ -118,7 +147,7 @@ const app = new Hono()
             // This is a fileId from Better Upload, construct a public URL using our helper
             // This will create a URL using the R2 endpoint and bucket name
             uploadedImageUrl = getPublicFileUrl(image);
-            console.log('Generated public URL for image:', uploadedImageUrl);
+            // console.log('Generated public URL for image:', uploadedImageUrl);
           } else {
             // This is already a URL or data URL, use it directly
             uploadedImageUrl = image;
@@ -183,7 +212,7 @@ const app = new Hono()
             // This is a fileId from Better Upload, construct a public URL using our helper
             // This will create a URL using the R2 endpoint and bucket name
             uploadedImageUrl = getPublicFileUrl(image);
-            console.log('Generated public URL for image:', uploadedImageUrl);
+            // console.log('Generated public URL for image:', uploadedImageUrl);
           } else {
             // This is already a URL or data URL, use it directly
             uploadedImageUrl = image;
