@@ -1,5 +1,5 @@
 import React from 'react';
-import { getCurrentSession } from '@/features/auth/auth-actions';
+import { getCurrentSession } from '@/features/auth/auth-queries';
 import { redirect } from 'next/navigation';
 
 const WorkspaceIdPage = async () => {
