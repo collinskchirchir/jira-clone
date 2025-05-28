@@ -1,14 +1,16 @@
 import { handle } from 'hono/vercel';
+import app from './app';
+
 import auth from '@/features/auth/server/auth';
 import upload from '@/features/upload/server/upload';
 import workspaces from '@/features/workspaces/server/workspaces';
-
-import app from './app';
+import members from '@/features/members/server/members';
 
 const routes = app
   .route('/auth', auth)
   .route('/workspaces', workspaces)
-  .route('/upload', upload);
+  .route('/upload', upload)
+  .route('/members', members);
 
 export const GET = handle(app);
 export const POST = handle(app);
