@@ -2,6 +2,7 @@ import React from 'react';
 import { Sidebar } from '@/components/sidebar';
 import { Navbar } from '@/components/navbar';
 import { CreateWorkspaceModal } from '@/features/workspaces/components/create-workspace-modal';
+import { CreateProjectModal } from '@/features/projects/components/create-project-modal';
 
 interface Props {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ const DashboardLayout = ({ children }: Props) => {
   return (
     <div className="min-h-screen ">
       <CreateWorkspaceModal />
+      <CreateProjectModal />
       <div className="flex size-full ">
         <div className="fixed left-0 top-0 hidden h-full overflow-y-auto lg:block lg:w-[264px]">
           <Sidebar />

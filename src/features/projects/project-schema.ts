@@ -9,3 +9,8 @@ export const createProjectSchema = z.object({
   ]),
   workspaceId: z.string(),
 });
+
+export const createProjectFormSchema = createProjectSchema.omit({
+  workspaceId: true,
+});
+export type CreateProjectFormType = z.infer<typeof createProjectFormSchema>
