@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { cn } from '@/lib/utils';
-// import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -26,7 +26,7 @@ interface CreateProjectFormProps {
 export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
 
   const workspaceId = useWorkspaceId();
-  // const router = useRouter();
+  const router = useRouter();
   const { mutate, isPending, isUploading, isCreating } = useCreateProject();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,12 +47,12 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
     };
     // Pass form values to the mutation
     mutate({ form: finalValues }, {
-      onSuccess: () => {
+      onSuccess: ({ data }) => {
         form.reset();
         // onCancel?.(); // prevents the redirect
 
         // TODO: redirect to Project screen
-        // router.push(`/projects/${data.$id}`);
+        router.push(`/workspaces/${workspaceId}/projects/${data.$id}`);
       },
     });
   };

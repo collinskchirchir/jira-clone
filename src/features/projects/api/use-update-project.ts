@@ -5,8 +5,8 @@ import { toast } from 'sonner';
 import { uploadFile } from 'better-upload/client';
 
 
-type ResponseType = InferResponseType<typeof client.api.projects[':projectId']['$patch']>
-type RequestType = InferRequestType<typeof client.api.projects[':projectId']['$patch']>
+type ResponseType = InferResponseType<typeof client.api.projects[':projectId']['$patch'], 200>;
+type RequestType = InferRequestType<typeof client.api.projects[':projectId']['$patch']>;
 
 export const useUpdateProject = () => {
   const queryClient = useQueryClient();
@@ -48,12 +48,18 @@ export const useUpdateProject = () => {
           form: updatedForm,
           param,
         });
+        if (!response.ok) {
+          throw new Error('Failed to update project');
+        }
 
         return response.json();
       }
 
       // If the image is already a string or not present, send directly
       const response = await client.api.projects[':projectId'].$patch({ form, param });
+      if (!response.ok) {
+        throw new Error('Failed to update project');
+      }
       return response.json();
     },
     onSuccess: ({ data }) => {
@@ -72,6 +78,6 @@ export const useUpdateProject = () => {
     uploadMutation,
     isPending: updateMutation.isPending || uploadMutation.isPending,
     isUploading: uploadMutation.isPending,
-    isCreating: updateMutation.isPending && !uploadMutation.isPending,
+    isUpdating: updateMutation.isPending && !uploadMutation.isPending,
   };
 };

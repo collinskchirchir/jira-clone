@@ -15,11 +15,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DottedSeparator } from '@/components/dotted-separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-// import { useConfirm } from '@/hooks/use-confirm';
+import { useConfirm } from '@/hooks/use-confirm';
 import { Project } from '../project-types';
 
 import { updateProjectSchema } from '@/features/projects/project-schema';
 import { useUpdateProject } from '@/features/projects/api/use-update-project';
+import { useDeleteProject } from '@/features/projects/api/use-delete-project';
 
 
 interface EditProjectFormProps {
@@ -32,13 +33,13 @@ export const EditProjectForm = ({ onCancel, initialValues }: EditProjectFormProp
 
   const { mutate, isPending, isUploading, isUpdating } = useUpdateProject();
 
-  // const { mutate: deleteProject, isPending: isDeletingProject } = useDeleteProject();
+  const { mutate: deleteProject, isPending: isDeletingProject } = useDeleteProject();
 
-  // const [DeleteDialog, confirmDelete] = useConfirm(
-  //   'Delete Project',
-  //   'This action cannot be undone',
-  //   'destructive',
-  // );
+  const [DeleteDialog, confirmDelete] = useConfirm(
+    'Delete Project',
+    'This action cannot be undone',
+    'destructive',
+  );
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -51,17 +52,17 @@ export const EditProjectForm = ({ onCancel, initialValues }: EditProjectFormProp
     },
   });
 
-  // const handleDelete = async () => {
-  //   const ok = await confirmDelete();
-  //   if (!ok) return;
-  //   deleteProject(
-  //     { param: { projectId: initialValues.$id } }, {
-  //       onSuccess: () => {
-  //         window.location.href = '/';
-  //       },
-  //     },
-  //   );
-  // };
+  const handleDelete = async () => {
+    const ok = await confirmDelete();
+    if (!ok) return;
+    deleteProject(
+      { param: { projectId: initialValues.$id } }, {
+        onSuccess: () => {
+          window.location.href = `/workspaces/${initialValues.workspaceId}`;
+        },
+      },
+    );
+  };
 
   const onSubmit = (values: z.infer<typeof updateProjectSchema>) => {
     console.log('Form values:', values);
@@ -91,14 +92,14 @@ export const EditProjectForm = ({ onCancel, initialValues }: EditProjectFormProp
 
   return (
     <div className="flex flex-col gap-y-4">
-      {/* <DeleteDialog /> */}
+      <DeleteDialog />
       <Card className="size-full border-none shadow-none">
         <CardHeader className="flex flex-row items-center gap-x-4 space-y-0 p-7">
           <Button
             type="button"
             size="sm"
             variant="secondary"
-            onClick={onCancel || (() => router.push(`/projects/${initialValues.$id}`))}
+            onClick={onCancel || (() => router.push(`/workspaces/${initialValues.workspaceId}/projects/${initialValues.$id}`))}
           >
             <ArrowLeftIcon className="mr-2 size-4" />
             Back
@@ -262,10 +263,17 @@ export const EditProjectForm = ({ onCancel, initialValues }: EditProjectFormProp
               size="sm"
               variant="destructive"
               type="button"
-              // disabled={isPending || isDeletingProject}
-              // onClick={handleDelete}
+              disabled={isPending || isDeletingProject}
+              onClick={handleDelete}
             >
-              Delete Project
+              {isDeletingProject ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Project'
+              )}
             </Button>
           </div>
         </CardContent>

@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { uploadFile } from 'better-upload/client';
 
 
-type ResponseType = InferResponseType<typeof client.api.projects['$post']>
+type ResponseType = InferResponseType<typeof client.api.projects['$post'], 200>
 type RequestType = InferRequestType<typeof client.api.projects['$post']>
 
 export const useCreateProject = () => {
@@ -48,12 +48,18 @@ export const useCreateProject = () => {
         const response = await client.api.projects.$post({
           form: updatedForm,
         });
+        if (!response.ok) {
+          throw new Error('Failed to update project');
+        }
 
         return response.json();
       }
 
       // If the image is already a string or not present, send directly
       const response = await client.api.projects.$post({ form });
+      if (!response.ok) {
+        throw new Error('Failed to update project');
+      }
       return response.json();
     },
     onSuccess: () => {
