@@ -19,7 +19,6 @@ const WorkspaceIdJoinPage = async ({ params }: WorkpaceIdJoinPageProps) => {
   if (!initialValues) {
     redirect('/');
   }
-  ;
 
   return (
     <div className="w-full lg:max-w-xl">

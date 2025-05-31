@@ -7,31 +7,27 @@ import { createSessionClient } from '@/lib/appwrite';
 
 // special util in server components (e.g page.tsx) serving as authorization checks
 export const getWorkspaces = async () => {
-  try {
-    const { account, databases } = await createSessionClient();
-    const user = await account.get();
+  const { account, databases } = await createSessionClient();
+  const user = await account.get();
 
-    // extract all members that logged in user is a part of
-    const members = await databases.listDocuments(
-      env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
-      env.NEXT_PUBLIC_APPWRITE_MEMBERS_ID,
-      [Query.equal('userId', user.$id)],
-    );
-    if (members.total === 0) {
-      return { documents: [], total: 0 };
-    }
-
-    const workspaceIds = members.documents.map((member) => member.workspaceId);
-
-    const workspaces = await databases.listDocuments(
-      env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
-      env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
-      [Query.orderDesc('$createdAt'), Query.contains('$id', workspaceIds)],
-    );
-    return workspaces;
-  } catch {
+  // extract all members that logged in user is a part of
+  const members = await databases.listDocuments(
+    env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+    env.NEXT_PUBLIC_APPWRITE_MEMBERS_ID,
+    [Query.equal('userId', user.$id)],
+  );
+  if (members.total === 0) {
     return { documents: [], total: 0 };
   }
+
+  const workspaceIds = members.documents.map((member) => member.workspaceId);
+
+  const workspaces = await databases.listDocuments(
+    env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+    env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
+    [Query.orderDesc('$createdAt'), Query.contains('$id', workspaceIds)],
+  );
+  return workspaces;
 };
 
 interface GetWorkspaceProps {
@@ -39,30 +35,28 @@ interface GetWorkspaceProps {
 }
 
 export const getWorkspace = async ({ workspaceId }: GetWorkspaceProps) => {
-  try {
-    const { account, databases } = await createSessionClient();
-    const user = await account.get();
 
-    // extract all members that logged in user is a part of
-    const member = await getMember({
-      databases,
-      workspaceId,
-      userId: user.$id,
-    });
+  const { account, databases } = await createSessionClient();
+  const user = await account.get();
 
-    if (!member) {
-      return null;
-    }
+  // extract all members that logged in user is a part of
+  const member = await getMember({
+    databases,
+    workspaceId,
+    userId: user.$id,
+  });
 
-    const workspace = await databases.getDocument<Workspace>(
-      env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
-      env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
-      workspaceId,
-    );
-    return workspace;
-  } catch {
-    return null;
+  if (!member) {
+    throw new Error('Unauthorized');
   }
+
+  const workspace = await databases.getDocument<Workspace>(
+    env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+    env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
+    workspaceId,
+  );
+  return workspace;
+
 };
 
 
@@ -71,16 +65,14 @@ interface GetWorkspaceInfoProps {
 }
 
 export const getWorkspaceInfo = async ({ workspaceId }: GetWorkspaceInfoProps) => {
-  try {
-    const { databases } = await createSessionClient();
 
-    const workspace = await databases.getDocument<Workspace>(
-      env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
-      env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
-      workspaceId,
-    );
-    return { name: workspace.name };
-  } catch {
-    return null;
-  }
+  const { databases } = await createSessionClient();
+
+  const workspace = await databases.getDocument<Workspace>(
+    env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+    env.NEXT_PUBLIC_APPWRITE_WORKSPACES_ID,
+    workspaceId,
+  );
+  return { name: workspace.name };
+
 };
