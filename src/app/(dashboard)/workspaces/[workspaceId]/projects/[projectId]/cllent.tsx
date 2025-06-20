@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { PageLoader } from '@/components/page-loader';
 import { PageError } from '@/components/page-error';
+import { TaskViewSwitcher } from '@/features/tasks/components/task-view-switcher';
 
 export const ProjectIdClient = () => {
   const projectId = useProjectId();
@@ -39,6 +40,7 @@ export const ProjectIdClient = () => {
           </Button>
         </div>
       </div>
+      <TaskViewSwitcher />
     </div>
   );
 };
