@@ -34,7 +34,8 @@ export const TaskViewSwitcher = () => {
     projectId,
     assigneeId,
     status,
-    dueDate
+    dueDate,
+    search
   });
 
   return (
